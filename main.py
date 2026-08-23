@@ -6,8 +6,7 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient, DESCENDING
-# pymongo import already handled via from pymongo import MongoClient
-
+import pymongo
 
 # MongoDB connection setup
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
@@ -21,7 +20,7 @@ app = FastAPI(title="Local Ollama Agent API", version="1.0.0")
 OLLAMA_BASE_URL = os.getenv(
     "OLLAMA_BASE_URL", "http://localhost:11434/api/generate"
 )
-DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "qwen3:14b")
+DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "qwen2.5-coder:14b")
 
 
 class AgentRequest(BaseModel):
@@ -112,13 +111,6 @@ async def health_check():
         "engine": "Ollama Local",
         "mongodb": db_status
     }
-
-# Endpoint to retrieve logs
-# @app.get("/logs")
-# async def get_logs():
-#     logs = collection.find().sort("timestamp", pymongo.DESCENDING)
-#     return {"logs": list(logs)}
-
 
 @app.get("/logs")
 async def get_logs():
