@@ -31,6 +31,30 @@ async function sendMessage() {
     }
 }
 
+async function reviewMistakes() {
+    const reviewBtn = document.getElementById('reviewBtn');
+    reviewBtn.disabled = true;
+
+    appendMessage('복습할 문장을 골라줘', 'user-msg');
+    const loadingId = appendMessage('복습 문제 준비 중...', 'agent-msg');
+
+    try {
+        const res = await fetch('/review?count=3');
+        const data = await res.json();
+
+        if (!data.quiz) {
+            document.getElementById(loadingId).innerText = data.message || '복습할 오답이 아직 없습니다.';
+            return;
+        }
+
+        document.getElementById(loadingId).innerText = data.quiz;
+    } catch (err) {
+        document.getElementById(loadingId).innerText = '오류가 발생했습니다: ' + err.message;
+    } finally {
+        reviewBtn.disabled = false;
+    }
+}
+
 function appendMessage(text, className) {
     const chatBox = document.getElementById('chatBox');
     const msgDiv = document.createElement('div');

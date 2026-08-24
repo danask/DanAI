@@ -4,3 +4,4 @@ httpx
 pymongo
 pydantic
 jinja2
+numpy
