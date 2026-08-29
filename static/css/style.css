@@ -1,12 +1,25 @@
+/* ==========================================================================
+   1. Global Reset & Box Sizing
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: #f4f4f9;
-    margin: 0;
     padding: 20px;
     display: flex;
     justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
+/* ==========================================================================
+   2. Main Container
+   ========================================================================== */
 .chat-container {
     width: 100%;
     max-width: 800px;
@@ -16,16 +29,31 @@ body {
     display: flex;
     flex-direction: column;
     height: 90vh;
+    overflow: hidden;
 }
 
+/* ==========================================================================
+   3. Header Section (Desktop Default)
+   ========================================================================== */
 .chat-header {
     padding: 16px 20px;
     border-bottom: 1px solid #eee;
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 8px;
 }
 
+.chat-header h2 {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin-right: auto; /* 타이틀을 항상 좌측에 고정 */
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   4. Chat Body & Message Bubbles
+   ========================================================================== */
 .chat-box {
     flex: 1;
     padding: 20px;
@@ -33,6 +61,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background-color: #fbfbfd;
 }
 
 .message {
@@ -42,6 +71,7 @@ body {
     line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+    font-size: 14px;
 }
 
 .user-msg {
@@ -58,19 +88,25 @@ body {
     border-bottom-left-radius: 2px;
 }
 
+/* ==========================================================================
+   5. Input & Controls Section
+   ========================================================================== */
 .input-area {
-    padding: 16px;
+    padding: 12px;
     border-top: 1px solid #eee;
     display: flex;
-    gap: 10px;
+    align-items: center; /* 입력창과 전송 버튼의 세로 중앙 정렬 */
+    gap: 8px;
+    background-color: #ffffff;
 }
 
 select, input, button {
-    padding: 10px 14px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px; /* 전체 폰트 사이즈 살짝 축소 */
     outline: none;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 input[type="text"] {
@@ -82,10 +118,123 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    white-space: nowrap; /* 글씨 줄바꿈(위아래 분리) 전면 방지 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+button:active {
+    opacity: 0.85;
 }
 
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* ==========================================================================
+   6. 📱 Mobile Specific Optimization (max-width: 600px)
+   ========================================================================== */
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+        align-items: flex-start;
+    }
+
+    .chat-container {
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .chat-header {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .chat-header h2 {
+        width: 100%;
+        text-align: center;
+        font-size: 1.0rem; /* 헤더 타이틀 폰트 감소 */
+        margin-bottom: 2px;
+    }
+
+    #taskType {
+        width: 100%;
+        font-size: 14px;
+        height: 36px;
+    }
+
+    /* 헤더 내 상단 버튼 그룹 */
+    .chat-header button {
+        flex: 1 1 calc(50% - 3px);
+        font-size: 11px; /* 상단 버튼 폰트 크기 감소 */
+        padding: 0 6px;
+        height: 34px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chat-box {
+        padding: 10px;
+    }
+
+    .message {
+        max-width: 85%;
+        font-size: 13px; /* 메시지 본문 폰트 크기 줄임 */
+        padding: 10px 12px;
+    }
+
+    .input-area {
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    input[type="text"] {
+        font-size: 14px;
+        padding: 8px 10px;
+        height: 38px;
+    }
+
+    /* 하단 전송 버튼 정렬 및 줄바꿈 방지 */
+    #sendBtn {
+        font-size: 13px;
+        padding: 0 14px;
+        height: 38px;
+        white-space: nowrap; /* 텍스트 위아래 쪼개짐 방지 */
+        flex-shrink: 0;      /* 버튼 너비 찌그러짐 방지 */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* 마크다운 요소 내부 여백 및 정렬 */
+.message p {
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.message p:last-child {
+    margin-bottom: 0;
+}
+
+.message ul, .message ol {
+    margin: 4px 0 8px 0;
+    padding-left: 20px;
+}
+
+.message li {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.message strong {
+    color: #1d1d1f;
+    font-weight: 600;
 }

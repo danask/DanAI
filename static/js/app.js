@@ -55,6 +55,100 @@ async function reviewMistakes() {
     }
 }
 
+async function fetchCanadaNewsSummary() {
+    const caNewsBtn = document.getElementById('caNewsBtn');
+    caNewsBtn.disabled = true;
+
+    // 1단계: 뉴스 수집 상태 표시
+    const loadingId = appendMessage('📡 CityNews, CBC, CTV RSS에서 최신 기사를 수집하는 중...', 'agent-msg');
+    const msgElement = document.getElementById(loadingId);
+
+    try {
+        // 2단계: Ollama 요약 진행 상태 변경 (1.5초 후 텍스트 업데이트)
+        setTimeout(() => {
+            if (msgElement && caNewsBtn.disabled) {
+                msgElement.innerText = '🤖 기사 수집 완료. Ollama가 한국어로 번역 및 Top 10 요약문을 생성하고 있습니다... (약 20~30초 소요)';
+            }
+        }, 2000);
+
+        const res = await fetch('/news/canada-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.detail || '서버 응답 오류');
+        }
+
+        const data = await res.json();
+        msgElement.innerText = data.result || '요약 결과를 가져올 수 없습니다.';
+
+    } catch (err) {
+        msgElement.innerText = '❌ 오류 발생: ' + err.message;
+    } finally {
+        caNewsBtn.disabled = false;
+    }
+}
+
+// 1. 저장된 최신 뉴스 즉시 불러오기 (DB 조회 - 속도 매우 빠름)
+async function fetchDbNewsSummary() {
+    const dbNewsBtn = document.getElementById('dbNewsBtn');
+    dbNewsBtn.disabled = true;
+
+    const loadingId = appendMessage('📡 DB에서 최신 뉴스 요약을 불러옵니다...', 'agent-msg');
+    const msgElement = document.getElementById(loadingId);
+
+    try {
+        const res = await fetch('/news/latest');
+        
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.detail || '저장된 뉴스가 없습니다.');
+        }
+
+        const data = await res.json();
+        const dateStr = data.created_at ? new Date(data.created_at).toLocaleString() : '';
+        
+        // innerText 대신 marked.parse()를 사용하여 innerHTML로 파싱된 HTML 삽입
+        const formattedMarkdown = `**[수집 일시: ${dateStr}]**\n\n${data.summary || '요약 내용이 없습니다.'}`;
+        msgElement.innerHTML = marked.parse(formattedMarkdown);
+
+    } catch (err) {
+        msgElement.innerText = '❌ 오류 발생: ' + err.message;
+    } finally {
+        dbNewsBtn.disabled = false;
+    }
+}
+
+// 2. 실시간 뉴스 수집 및 AI 요약 실행 (Ollama 호출 - 약 20~30초 소요)
+async function fetchLiveNewsSummary() {
+    const liveNewsBtn = document.getElementById('liveNewsBtn');
+    liveNewsBtn.disabled = true;
+
+    const loadingId = appendMessage('🚀 실시간 RSS 수집 및 Ollama 요약 진행 중...', 'agent-msg');
+    const msgElement = document.getElementById(loadingId);
+
+    try {
+        const res = await fetch('/news/canada-summary', { method: 'POST' });
+        
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.detail || '요약 생성 실패');
+        }
+
+        const data = await res.json();
+        
+        // innerHTML과 marked.parse 사용
+        msgElement.innerHTML = marked.parse(data.summary || data.result || '요약 결과가 없습니다.');
+
+    } catch (err) {
+        msgElement.innerText = '❌ 오류 발생: ' + err.message;
+    } finally {
+        liveNewsBtn.disabled = false;
+    }
+}
+
 function appendMessage(text, className) {
     const chatBox = document.getElementById('chatBox');
     const msgDiv = document.createElement('div');

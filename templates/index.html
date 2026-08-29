@@ -16,6 +16,9 @@
                 <option value="summarize">Summarizer</option>
                 <option value="english">English Tutor</option>
             </select>
+            <!-- <button id="caNewsBtn" onclick="fetchCanadaNewsSummary()">🇨🇦 캐나다 뉴스 Top 10 (한글 요약)</button>             -->
+            <button id="dbNewsBtn" onclick="fetchDbNewsSummary()">뉴스 보기</button>
+            <button id="liveNewsBtn" onclick="fetchLiveNewsSummary()">실시간 뉴스 요약</button>             
             <button id="reviewBtn" onclick="reviewMistakes()">복습하기</button>
         </div>
         <div class="chat-box" id="chatBox"></div>
@@ -26,5 +29,7 @@
     </div>
 
     <script src="/static/js/app.js"></script>
+    <!-- marked.js CDN 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>

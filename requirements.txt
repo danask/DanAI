@@ -5,3 +5,6 @@ pymongo
 pydantic
 jinja2
 numpy
+feedparser
+logging
+apscheduler
