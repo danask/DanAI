@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# 1. 스크립트 위치 기준으로 디렉터리 이동
+# 1. Move to the directory this script lives in
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
 
-# 2. myenv 폴더 존재 여부 확인 및 생성
+# 2. Create the myenv virtual environment if it doesn't exist yet
 if [ ! -d "myenv" ]; then
-    echo "myenv가 존재하지 않아 새로 생성합니다."
+    echo "myenv does not exist, creating a new one."
     python3 -m venv myenv
 fi
 
-# 3. 가상환경 내부 파이썬 바이너리 경로 지정
+# 3. Path to the Python binary inside the virtual environment
 VENV_PYTHON="$DIR/myenv/bin/python"
 
-# 4. 패키지 설치 및 uvicorn 실행 (가상환경 전용 파이썬 사용)
+# 4. Install packages and run uvicorn (using the venv's own Python)
 "$VENV_PYTHON" -m pip install --upgrade pip
 "$VENV_PYTHON" -m pip install -r requirements.txt
-"$VENV_PYTHON" -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+"$VENV_PYTHON" -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

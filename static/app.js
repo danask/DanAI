@@ -59,12 +59,12 @@ async function fetchCanadaNewsSummary() {
     const caNewsBtn = document.getElementById('caNewsBtn');
     caNewsBtn.disabled = true;
 
-    // 1단계: 뉴스 수집 상태 표시
+    // Step 1: show news-collection status
     const loadingId = appendMessage('📡 CityNews, CBC, CTV RSS에서 최신 기사를 수집하는 중...', 'agent-msg');
     const msgElement = document.getElementById(loadingId);
 
     try {
-        // 2단계: Ollama 요약 진행 상태 변경 (1.5초 후 텍스트 업데이트)
+        // Step 2: update progress text after ~1.5s (Ollama summarization in progress)
         setTimeout(() => {
             if (msgElement && caNewsBtn.disabled) {
                 msgElement.innerText = '🤖 기사 수집 완료. Ollama가 한국어로 번역 및 Top 10 요약문을 생성하고 있습니다... (약 20~30초 소요)';
@@ -91,7 +91,7 @@ async function fetchCanadaNewsSummary() {
     }
 }
 
-// 1. 저장된 최신 뉴스 즉시 불러오기 (DB 조회 - 속도 매우 빠름)
+// 1. Immediately load the latest stored news (DB lookup - very fast)
 async function fetchDbNewsSummary() {
     const dbNewsBtn = document.getElementById('dbNewsBtn');
     dbNewsBtn.disabled = true;
@@ -108,9 +108,8 @@ async function fetchDbNewsSummary() {
         }
 
         const data = await res.json();
-        const dateStr = data.created_at ? new Date(data.created_at).toLocaleString() : '';
-        
-        // UTC 시간 변환 함수 호출
+
+        // Call the epoch-to-local time conversion function
         const formattedDate = formatToLocalTime(data.created_at);
         const formattedMarkdown = `**[수집 일시: ${formattedDate}]**\n\n${data.summary || '요약 내용이 없습니다.'}`;
         msgElement.innerHTML = marked.parse(formattedMarkdown);
@@ -122,7 +121,7 @@ async function fetchDbNewsSummary() {
     }
 }
 
-// 2. 실시간 뉴스 수집 및 AI 요약 실행 (Ollama 호출 - 약 20~30초 소요)
+// 2. Run live news collection and AI summarization (Ollama call - takes ~20-30s)
 async function fetchLiveNewsSummary() {
     const liveNewsBtn = document.getElementById('liveNewsBtn');
     liveNewsBtn.disabled = true;
@@ -140,7 +139,7 @@ async function fetchLiveNewsSummary() {
 
         const data = await res.json();
         
-        // innerHTML과 marked.parse 사용
+        // Use innerHTML with marked.parse
         msgElement.innerHTML = marked.parse(data.summary || data.result || '요약 결과가 없습니다.');
 
     } catch (err) {
@@ -150,14 +149,15 @@ async function fetchLiveNewsSummary() {
     }
 }
 
-function formatToLocalTime(utcDateString) {
-    if (!utcDateString) return '';
-    
-    // DB의 UTC 문자열 뒤에 'Z'가 없는 경우 붙여서 ISO 표준(UTC)임을 명시
-    const isoString = utcDateString.endsWith('Z') ? utcDateString : utcDateString + 'Z';
-    const date = new Date(isoString);
+function formatToLocalTime(epochMs) {
+    if (!epochMs) return '';
 
-    // timeZone 옵션을 제외하면 접속한 기기(OS)의 타임존이 자동 적용됨
+    // epochMs is a Unix timestamp in milliseconds (UTC). Date() converts it
+    // to the browser's local timezone automatically, so no manual timezone
+    // string handling is needed here anymore.
+    const date = new Date(epochMs);
+
+    // Omitting the timeZone option lets the connected device's (OS) local timezone apply automatically
     return date.toLocaleString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
