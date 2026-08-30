@@ -3,7 +3,7 @@ import os
 import random
 import re
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
@@ -609,7 +609,7 @@ async def fetch_and_summarize_news_job():
                 "model_used": NEWS_MODEL,
                 "summary": summary_result,
                 "articles_count": len(raw_news_entries[:20]),
-                "created_at": datetime.now().isoformat(),
+                "created_at": datetime.now(timezone.utc),
             }
             news_collection.insert_one(doc)
             logger.info("[CRON_TASK] ✨ 뉴스 요약 DB 저장 완료")

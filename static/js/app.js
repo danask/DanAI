@@ -110,8 +110,9 @@ async function fetchDbNewsSummary() {
         const data = await res.json();
         const dateStr = data.created_at ? new Date(data.created_at).toLocaleString() : '';
         
-        // innerText 대신 marked.parse()를 사용하여 innerHTML로 파싱된 HTML 삽입
-        const formattedMarkdown = `**[수집 일시: ${dateStr}]**\n\n${data.summary || '요약 내용이 없습니다.'}`;
+        // UTC 시간 변환 함수 호출
+        const formattedDate = formatToLocalTime(data.created_at);
+        const formattedMarkdown = `**[수집 일시: ${formattedDate}]**\n\n${data.summary || '요약 내용이 없습니다.'}`;
         msgElement.innerHTML = marked.parse(formattedMarkdown);
 
     } catch (err) {
@@ -147,6 +148,25 @@ async function fetchLiveNewsSummary() {
     } finally {
         liveNewsBtn.disabled = false;
     }
+}
+
+function formatToLocalTime(utcDateString) {
+    if (!utcDateString) return '';
+    
+    // DB의 UTC 문자열 뒤에 'Z'가 없는 경우 붙여서 ISO 표준(UTC)임을 명시
+    const isoString = utcDateString.endsWith('Z') ? utcDateString : utcDateString + 'Z';
+    const date = new Date(isoString);
+
+    // timeZone 옵션을 제외하면 접속한 기기(OS)의 타임존이 자동 적용됨
+    return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
 }
 
 function appendMessage(text, className) {
